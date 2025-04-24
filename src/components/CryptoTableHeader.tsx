@@ -13,7 +13,7 @@ export const CryptoTableHeader: React.FC<CryptoTableHeaderProps> = ({
   className
 }) => {
   return (
-    <TableHead className={cn("font-medium text-muted-foreground", className)}>
+    <TableHead className={cn("font-medium text-sm text-muted-foreground py-4", className)}>
       {title}
     </TableHead>
   );

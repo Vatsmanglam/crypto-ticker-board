@@ -11,65 +11,73 @@ interface CryptoTableRowProps {
 }
 
 export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
-  // Format numbers
-  const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
-  
-  const formatCurrency = (num: number): string => {
-    return new Intl.NumberFormat('en-US', { 
-      style: 'currency', 
+  // Format numbers with correct decimal places
+  const formatPrice = (num: number): string => {
+    if (num >= 1) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(num);
+    }
+    // For prices less than 1, show more decimal places
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
     }).format(num);
   };
   
-  const formatMarketCap = (num: number): string => {
-    if (num >= 1_000_000_000_000) {
-      return `$${(num / 1_000_000_000_000).toFixed(2)}T`;
-    }
+  const formatLargeNumber = (num: number): string => {
     if (num >= 1_000_000_000) {
       return `$${(num / 1_000_000_000).toFixed(2)}B`;
     }
     if (num >= 1_000_000) {
       return `$${(num / 1_000_000).toFixed(2)}M`;
     }
-    return `$${num.toFixed(2)}`;
+    return num.toLocaleString();
   };
   
-  // Get color based on value
+  const formatSupply = (num: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 2
+    }).format(num);
+  };
+  
+  // Get chart color based on 7d change
   const getChartColor = (changeValue: number): string => {
-    return changeValue >= 0 ? '#10b981' : '#ef4444';
+    return changeValue >= 0 ? '#22c55e' : '#ef4444';
   };
   
   // Determine price class based on change
   const priceClass = cn(
-    "font-medium transition-colors whitespace-nowrap",
+    "font-medium transition-colors whitespace-nowrap text-right",
     {
-      'animate-pulse-price text-positive': asset.priceChange === 'up',
-      'animate-pulse-price text-negative': asset.priceChange === 'down',
+      'animate-pulse-price text-emerald-500': asset.priceChange === 'up',
+      'animate-pulse-price text-red-500': asset.priceChange === 'down',
     }
   );
 
   return (
-    <TableRow>
-      <TableCell className="text-center font-medium">{asset.id}</TableCell>
+    <TableRow className="hover:bg-secondary/40">
+      <TableCell className="font-medium text-center">{asset.id}</TableCell>
       <TableCell>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <img 
             src={asset.logo} 
             alt={`${asset.name} logo`} 
             className="w-6 h-6" 
           />
-          <div>
-            <div className="font-medium">{asset.name}</div>
-            <div className="text-xs text-muted-foreground">{asset.symbol}</div>
+          <div className="flex flex-col items-start">
+            <span className="font-semibold">{asset.name}</span>
+            <span className="text-xs text-muted-foreground">{asset.symbol}</span>
           </div>
         </div>
       </TableCell>
       <TableCell className={priceClass}>
-        {formatCurrency(asset.price)}
+        {formatPrice(asset.price)}
       </TableCell>
       <TableCell>
         <PercentageChange value={asset.change1h} />
@@ -80,17 +88,20 @@ export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
       <TableCell>
         <PercentageChange value={asset.change7d} />
       </TableCell>
-      <TableCell className="hidden md:table-cell">
-        {formatMarketCap(asset.marketCap)}
+      <TableCell className="hidden md:table-cell text-right">
+        {formatLargeNumber(asset.marketCap)}
       </TableCell>
-      <TableCell className="hidden md:table-cell">
-        {formatMarketCap(asset.volume24h)}
+      <TableCell className="hidden md:table-cell text-right">
+        {formatLargeNumber(asset.volume24h)}
+        <div className="text-xs text-muted-foreground">
+          {formatSupply(asset.volume24h / asset.price)} {asset.symbol}
+        </div>
       </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        {formatNumber(asset.circulatingSupply)} {asset.symbol}
+      <TableCell className="hidden lg:table-cell text-right">
+        {formatSupply(asset.circulatingSupply)} {asset.symbol}
       </TableCell>
-      <TableCell className="hidden lg:table-cell">
-        {asset.maxSupply ? formatNumber(asset.maxSupply) : '∞'} {asset.symbol}
+      <TableCell className="hidden lg:table-cell text-right">
+        {asset.maxSupply ? formatSupply(asset.maxSupply) : '∞'} {asset.symbol}
       </TableCell>
       <TableCell className="hidden lg:table-cell">
         <SparklineChart 

@@ -8,14 +8,13 @@ interface SparklineChartProps {
 }
 
 const SparklineChart: React.FC<SparklineChartProps> = ({ data, color }) => {
-  // Format data for recharts
   const chartData = data.map((value, index) => ({
     value,
     index,
   }));
 
   return (
-    <div className="h-12 w-full min-w-[100px]">
+    <div className="h-10 w-full min-w-[120px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
           <Line

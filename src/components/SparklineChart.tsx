@@ -14,8 +14,8 @@ const SparklineChart: React.FC<SparklineChartProps> = ({ data, color }) => {
   }));
 
   return (
-    <div className="h-10 w-full min-w-[120px]">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-10 w-full min-w-[120px]" style={{ minHeight: '40px' }}>
+      <ResponsiveContainer width="100%" height="100%" minHeight={40}>
         <LineChart data={chartData}>
           <Line
             type="monotone"

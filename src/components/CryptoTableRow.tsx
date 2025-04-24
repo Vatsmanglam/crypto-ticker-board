@@ -60,6 +60,12 @@ export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
     }
   );
 
+  // Add an error handler for image loading
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.src = "https://placehold.co/24x24/png"; // Fallback image
+    console.log(`Image failed to load for ${asset.name}`);
+  };
+
   return (
     <TableRow className="hover:bg-secondary/40">
       <TableCell className="font-medium text-center">{asset.id}</TableCell>
@@ -68,7 +74,9 @@ export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
           <img 
             src={asset.logo} 
             alt={`${asset.name} logo`} 
-            className="w-6 h-6" 
+            className="w-6 h-6 rounded-full" 
+            onError={handleImageError}
+            loading="lazy"
           />
           <div className="flex flex-col items-start">
             <span className="font-semibold">{asset.name}</span>

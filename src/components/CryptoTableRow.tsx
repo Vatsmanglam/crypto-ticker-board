@@ -1,10 +1,10 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { TableCell, TableRow } from "@/components/ui/table";
 import { CryptoAsset } from '../types/crypto';
 import SparklineChart from './SparklineChart';
 import PercentageChange from './PercentageChange';
 import { cn } from '@/lib/utils';
+import { Image, ImageOff } from 'lucide-react';
 
 interface CryptoTableRowProps {
   asset: CryptoAsset;
@@ -60,10 +60,31 @@ export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
     }
   );
 
-  // Add an error handler for image loading
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = "https://placehold.co/24x24/png"; // Fallback image
+  const [imageLoadError, setImageLoadError] = useState(false);
+
+  const handleImageError = () => {
+    setImageLoadError(true);
     console.log(`Image failed to load for ${asset.name}`);
+  };
+
+  const renderAssetLogo = () => {
+    if (imageLoadError) {
+      return (
+        <div className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full">
+          <ImageOff className="w-4 h-4 text-gray-500" />
+        </div>
+      );
+    }
+
+    return (
+      <img 
+        src={asset.logo || "https://placehold.co/24x24/png"} 
+        alt={`${asset.name} logo`} 
+        className="w-6 h-6 rounded-full object-cover" 
+        onError={handleImageError}
+        loading="lazy"
+      />
+    );
   };
 
   return (
@@ -71,13 +92,7 @@ export const CryptoTableRow: React.FC<CryptoTableRowProps> = ({ asset }) => {
       <TableCell className="font-medium text-center">{asset.id}</TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <img 
-            src={asset.logo} 
-            alt={`${asset.name} logo`} 
-            className="w-6 h-6 rounded-full" 
-            onError={handleImageError}
-            loading="lazy"
-          />
+          {renderAssetLogo()}
           <div className="flex flex-col items-start">
             <span className="font-semibold">{asset.name}</span>
             <span className="text-xs text-muted-foreground">{asset.symbol}</span>
